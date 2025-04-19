@@ -1,26 +1,76 @@
 import { useContext, useState } from 'react';
-import { View, Text, TextInput, Button, ScrollView, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Image } from 'react-native';
+import { Text, TextInput, Menu } from 'react-native-paper';
 import { CategoryContext } from '../../context/CategoryContext';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import { ImagePickerButtons, SubmitButton } from '../../components/Buttons';
+import { ItemContext } from '../../context/ItemsContext';
+import sharedStyles from '../../components/style';
 
 export const unstable_settings = {
-  // Completely opt out of being part of the tab bar
-  initialRouteName: 'index',
   tabBarHidden: true,
 };
 
 export default function AddItemScreen() {
-    
-  const { categories, addItem } = useContext(CategoryContext);
+  const { categories } = useContext(CategoryContext);
+  const { addItem } = useContext(ItemContext);
   const router = useRouter();
+  const params = useLocalSearchParams();
 
-  const [categoryId, setCategoryId] = useState<string | null>(null);
-  const [name, setName] = useState('');
-  const [image, setImage] = useState('');
-  const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
+  const [name, setName] = useState(params.name?.toString() ?? '');
+  const [image, setImage] = useState(params.image?.toString() ?? '');
+  const [categoryId, setCategoryId] = useState(params.categoryId?.toString() ?? null);
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const knownKeys = ['id', 'name', 'image', 'categoryId'];
+  const initialFields: { [key: string]: string } = {};
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (!knownKeys.includes(key)) {
+      initialFields[key] = value?.toString() ?? '';
+    }
+  });
+
+  const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>(initialFields);
 
   const handleFieldChange = (field: string, value: string) => {
     setFieldValues(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access media library is required!');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access the camera is required!');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      setImage(result.assets[0].uri);
+    }
   };
 
   const handleSubmit = () => {
@@ -30,15 +80,16 @@ export default function AddItemScreen() {
     }
 
     const newItem = {
-      id: Date.now().toString(),
+      id: params.id?.toString() ?? Date.now().toString(),
       name,
       image,
       categoryId,
       ...fieldValues,
     };
 
+    console.log('[SUBMIT ITEM]', newItem);
     addItem(newItem);
-    alert('Item added!');
+    alert('Item saved!');
     router.back();
   };
 
@@ -46,58 +97,74 @@ export default function AddItemScreen() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>Add New Item</Text>
+      <Text variant="titleLarge" style={{ marginBottom: 20 }}>
+        {params.id ? "Edit Item" : "Add New Item"}
+      </Text>
 
-      <Text>Item Name</Text>
       <TextInput
+        label="Item Name"
         value={name}
         onChangeText={setName}
-        placeholder="e.g., Red Yarn"
-        style={{ borderWidth: 1, padding: 10, marginBottom: 15, borderRadius: 8 }}
+        style={{ marginBottom: 15 }}
       />
 
-      <Text>Image URL</Text>
-      <TextInput
-        value={image}
-        onChangeText={setImage}
-        placeholder="https://..."
-        style={{ borderWidth: 1, padding: 10, marginBottom: 15, borderRadius: 8 }}
-      />
+      <ImagePickerButtons onPickImage={handlePickImage} onTakePhoto={handleTakePhoto} />
 
-      <Text>Category</Text>
-      {categories.map(cat => (
-        <TouchableOpacity
-          key={cat.id}
-          onPress={() => setCategoryId(cat.id)}
-          style={{
-            padding: 10,
-            marginVertical: 5,
-            borderWidth: 1,
-            borderColor: categoryId === cat.id ? '#ff6f61' : '#ccc',
-            borderRadius: 8,
-          }}
-        >
-          <Text>{cat.name}</Text>
-        </TouchableOpacity>
-      ))}
+      {image ? (
+        <Image
+          source={{ uri: image }}
+          style={sharedStyles.imagePreview}
+          resizeMode="cover"
+        />
+      ) : null}
+
+      <Text variant="labelLarge" style={{ marginBottom: 5 }}>Category</Text>
+      <Menu
+        visible={menuVisible}
+        onDismiss={() => setMenuVisible(false)}
+        anchor={
+          <Text
+            style={{
+              padding: 12,
+              borderWidth: 1,
+              borderColor: '#ccc',
+              borderRadius: 8,
+              marginBottom: 15,
+            }}
+            onPress={() => setMenuVisible(true)}
+          >
+            {selectedCategory?.name || "Select a Category"}
+          </Text>
+        }
+      >
+        {categories.map(cat => (
+          <Menu.Item
+            key={cat.id}
+            onPress={() => {
+              setCategoryId(cat.id);
+              setMenuVisible(false);
+            }}
+            title={cat.name}
+          />
+        ))}
+      </Menu>
 
       {selectedCategory && selectedCategory.fields.length > 0 && (
         <>
-          <Text style={{ marginTop: 20 }}>Custom Fields</Text>
+          <Text variant="labelLarge" style={{ marginTop: 20 }}>Custom Fields</Text>
           {selectedCategory.fields.map(field => (
-            <View key={field} style={{ marginBottom: 10 }}>
-              <Text>{field}</Text>
-              <TextInput
-                value={fieldValues[field] || ''}
-                onChangeText={value => handleFieldChange(field, value)}
-                style={{ borderWidth: 1, padding: 10, borderRadius: 8 }}
-              />
-            </View>
+            <TextInput
+              key={field}
+              label={field}
+              value={fieldValues[field] || ''}
+              onChangeText={(value) => handleFieldChange(field, value)}
+              style={{ marginBottom: 10 }}
+            />
           ))}
         </>
       )}
 
-      <Button title="Save Item" onPress={handleSubmit} />
+      <SubmitButton label="Save Item" onPress={handleSubmit} />
     </ScrollView>
   );
 }

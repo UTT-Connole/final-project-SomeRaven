@@ -1,63 +1,83 @@
-import { FlatList, Text, View, TouchableOpacity } from "react-native";
+import { FlatList, View } from "react-native";
 import { useContext } from "react";
 import { useRouter } from "expo-router";
+import { Text, Divider } from "react-native-paper";
 import { CategoryContext } from "../context/CategoryContext";
+import { ItemContext } from "../context/ItemsContext";
 import ItemCard from "../components/ItemCard";
+import { FABStack } from "../components/Buttons";
+import sharedStyles from "../components/style";
 
 export default function Index() {
-  const { items, categories } = useContext(CategoryContext);
+  const { categories } = useContext(CategoryContext);
+  const { items } = useContext(ItemContext);
   const router = useRouter();
 
+  const renderEmptyState = () => (
+    <View style={sharedStyles.emptyContainer}>
+      <Text variant="titleMedium" style={sharedStyles.emptyTitle}>
+        You don't have any stash items yet.
+      </Text>
+      <Text variant="bodyMedium" style={sharedStyles.emptySubtitle}>
+        Tap the ➕ button to add your first project or supply!
+      </Text>
+    </View>
+  );
+
+  const handleItemPress = (item: any) => {
+    router.push({
+      pathname: '/stash/add-item',
+      params: {
+        id: item.id?.toString() ?? '',
+        name: item.name ?? '',
+        image: item.image ?? '',
+        categoryId: item.categoryId ?? '',
+        ...Object.fromEntries(
+          Object.entries(item).filter(
+            ([key]) => !['id', 'name', 'image', 'categoryId'].includes(key)
+          )
+        )
+      }
+    });
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: "#f4f4f4", paddingTop: 50 }}>
-      {/* Header */}
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 20,
-          paddingHorizontal: 20,
-        }}
-      >
-        <TouchableOpacity onPress={() => router.push("./stash/add-category")}>
-          <Text style={{ fontSize: 30, color: "#333" }}>{'\u2630'}</Text>
-        </TouchableOpacity>
-        <Text style={{ fontSize: 24, fontWeight: "bold", color: "#333" }}>
-          Stash Tracker
+    <View style={sharedStyles.screenContainer}>
+      <View style={sharedStyles.pageHeader}>
+        <Text variant="headlineMedium" style={sharedStyles.titleText}>
+          My Stash
         </Text>
-        <TouchableOpacity onPress={() => router.push("./stash/add-item")}>
-          <Text style={{ fontSize: 30, color: "#333" }}>+</Text>
-        </TouchableOpacity>
+        <Text variant="bodySmall" style={sharedStyles.subtitleText}>
+          Everything you’re working with — in one place.
+        </Text>
       </View>
 
-      {/* Item List */}
+      <Divider style={sharedStyles.divider} />
+
       <FlatList
         data={items}
         keyExtractor={(item) => item.id?.toString() ?? Math.random().toString()}
+        contentContainerStyle={sharedStyles.listContent}
         renderItem={({ item }) => {
-          const category = categories.find(c => c.id === item.categoryId);
+          const category = categories.find((c) => c.id === item.categoryId);
           return (
             <ItemCard
               name={item.name}
               image={item.image}
               categoryName={category?.name || 'Unknown'}
               categoryColor={category?.color || '#ccc'}
+              onPress={() => handleItemPress(item)}
             />
           );
         }}
-        ListEmptyComponent={() => (
-          <View
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              marginTop: 50,
-            }}
-          >
-            <Text style={{ fontSize: 18, color: "#666" }}>No items found</Text>
-          </View>
-        )}
-        contentContainerStyle={{ paddingHorizontal: 20 }}
+        ListEmptyComponent={renderEmptyState}
+      />
+
+      <FABStack
+        onAddItem={() => router.push("/stash/add-item")}
+        onAddCategory={() => router.push("/stash/add-category")}
+        labelItem="Add Item"
+        colorItem="#ff6f61"
       />
     </View>
   );

@@ -5,6 +5,7 @@ interface ItemCardProps {
   image: string;
   categoryName: string;
   categoryColor: string;
+  onPress?: () => void;
 }
 
 export default function ItemCard({
@@ -12,9 +13,13 @@ export default function ItemCard({
   image,
   categoryName,
   categoryColor,
+  onPress,
 }: ItemCardProps) {
+  const hasImage = image?.trim() !== '';
+
   return (
     <TouchableOpacity
+      onPress={onPress}
       style={{
         backgroundColor: "#fff",
         padding: 20,
@@ -28,11 +33,14 @@ export default function ItemCard({
         shadowRadius: 4,
       }}
     >
-      <Image
-        source={{ uri: image }}
-        style={{ width: 50, height: 50, borderRadius: 25 }}
-      />
-      <Text style={{ fontSize: 18, fontWeight: "bold", color: "#333", marginTop: 10 }}>
+      {hasImage && (
+        <Image
+          source={{ uri: image }}
+          style={{ width: 50, height: 50, borderRadius: 25 }}
+        />
+      )}
+
+      <Text style={{ fontSize: 18, fontWeight: "bold", color: "#333", marginTop: hasImage ? 10 : 0 }}>
         {name}
       </Text>
       <Text style={{ fontSize: 14, color: "#666" }}>{categoryName}</Text>

@@ -1,10 +1,13 @@
 import { useState, useContext } from 'react';
-import { View, Text, TextInput, Button, ScrollView, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { Text, TextInput } from 'react-native-paper';
 import { CategoryContext } from '../../context/CategoryContext';
+import { useRouter } from 'expo-router';
+import { SubmitButton } from '../../components/Buttons';
+import sharedStyles from '../../components/styles';
 
 export const unstable_settings = {
-  tabBarHidden: true, // hides this from the tab bar
+  tabBarHidden: true,
 };
 
 export default function AddCategoryScreen() {
@@ -38,31 +41,37 @@ export default function AddCategoryScreen() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>Add New Category</Text>
+      <Text variant="titleLarge" style={{ marginBottom: 20 }}>Add New Category</Text>
 
-      <Text>Name</Text>
       <TextInput
+        label="Name"
         value={name}
         onChangeText={setName}
         placeholder="e.g., Crochet"
-        style={{ borderWidth: 1, padding: 10, marginBottom: 15, borderRadius: 8 }}
+        style={{ marginBottom: 15 }}
       />
 
-      <Text>Color</Text>
       <TextInput
+        label="Color"
         value={color}
         onChangeText={setColor}
         placeholder="e.g., #ffcc00"
-        style={{ borderWidth: 1, padding: 10, marginBottom: 15, borderRadius: 8 }}
+        style={{ marginBottom: 15 }}
       />
 
-      <Text>Add Custom Fields</Text>
+      <Text variant="labelLarge">Custom Fields</Text>
       <View style={{ flexDirection: 'row', marginBottom: 15 }}>
         <TextInput
           value={newField}
           onChangeText={setNewField}
           placeholder="e.g., Yarn Type"
-          style={{ flex: 1, borderWidth: 1, padding: 10, borderRadius: 8 }}
+          style={{
+            flex: 1,
+            borderWidth: 1,
+            padding: 10,
+            borderRadius: 8,
+            borderColor: '#ccc',
+          }}
         />
         <TouchableOpacity
           onPress={handleAddField}
@@ -71,6 +80,7 @@ export default function AddCategoryScreen() {
             backgroundColor: '#ff6f61',
             padding: 10,
             borderRadius: 8,
+            justifyContent: 'center',
           }}
         >
           <Text style={{ color: '#fff' }}>Add</Text>
@@ -81,11 +91,7 @@ export default function AddCategoryScreen() {
         <Text key={index} style={{ marginBottom: 5 }}>• {field}</Text>
       ))}
 
-      <View style={{ marginTop: 20 }}>
-        <Button title="Save Category" onPress={handleSubmit} />
-        <View style={{ height: 10 }} />
-        <Button title="Cancel" onPress={() => router.back()} />
-      </View>
+      <SubmitButton label="Save Category" onPress={handleSubmit} />
     </ScrollView>
   );
 }

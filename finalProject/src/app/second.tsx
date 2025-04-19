@@ -1,80 +1,108 @@
-import { FlatList, Text, View, Image, TouchableOpacity } from "react-native";
+import { useContext } from "react";
+import { FlatList, View, TouchableOpacity, Image } from "react-native";
+import { Text, Divider } from "react-native-paper";
+import { useRouter } from "expo-router";
+import { ProjectContext } from "../context/ProjectContext";
+import { FABStack } from "../components/Buttons";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import sharedStyles from "../components/style";
 
 export default function SecondScreen() {
+  const router = useRouter();
+  const { projects } = useContext(ProjectContext);
+
+  const renderEmptyState = () => (
+    <View style={sharedStyles.emptyContainer}>
+      <Text variant="titleMedium" style={sharedStyles.emptyTitle}>
+        No projects yet.
+      </Text>
+      <Text variant="bodyMedium" style={sharedStyles.emptySubtitle}>
+        Tap ➕ to start your first project!
+      </Text>
+    </View>
+  );
+
+  const handleProjectPress = (item: any) => {
+    router.push({
+      pathname: '/stash/add-project',
+      params: {
+        id: item.id?.toString() ?? '',
+        title: item.title ?? '',
+        categoryId: item.categoryId ?? '',
+        categoryColor: item.categoryColor ?? '',
+        isGift: item.isGift?.toString() ?? 'false',
+        dateStarted: item.dateStarted ?? '',
+        supplies: item.supplies ?? '',
+        status: item.status ?? 'Not Started',
+        imageUri: item.imageUri ?? '',
+      }
+    });
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: "#f4f4f4", paddingTop: 50 }}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingHorizontal: 20 }}>
-        <Text style={{ fontSize: 30, color: "#333" }}>{/* Unicode for hamburger icon */}
+    <View style={sharedStyles.screenContainer}>
+      <View style={sharedStyles.pageHeader}>
+        <Text variant="headlineMedium" style={sharedStyles.titleText}>
+          Project Tracker
         </Text>
-        
-        <Text style={{ fontSize: 24, fontWeight: 'bold', color: "#333" }}>Project Tracker</Text>
-        
-        <Text style={{ fontSize: 30, color: "#333" }}>
-          {'+'}
+        <Text variant="bodySmall" style={sharedStyles.subtitleText}>
+          Track your in-progress and completed work.
         </Text>
       </View>
 
-      {/* Project List */}
+      <Divider style={sharedStyles.divider} />
+
       <FlatList
-        data={[
-          { 
-            key: 'Project 1', 
-            category: 'Sewing Project', 
-            image: 'https://via.placeholder.com/50', 
-            status: 'In Progress', 
-            dateStarted: '2025-01-01', 
-            isGift: true 
-          },
-          { 
-            key: 'Project 2', 
-            category: 'Crochet Project', 
-            image: 'https://via.placeholder.com/50', 
-            status: 'Completed', 
-            dateStarted: '2025-02-15', 
-            isGift: false 
-          },
-          { 
-            key: 'Project 3', 
-            category: 'Cricut Project', 
-            image: 'https://via.placeholder.com/50', 
-            status: 'Not Started', 
-            dateStarted: '2025-03-10', 
-            isGift: true 
-          }
-        ]}
+        data={projects}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={sharedStyles.listContent}
         renderItem={({ item }) => (
-          <View 
-            style={{ 
-              marginHorizontal: 20,
-              marginBottom: 15,
-              backgroundColor: "#fff", 
-              borderRadius: 10, 
-              padding: 15,
-              shadowColor: '#000', 
-              shadowOpacity: 0.1, 
-              shadowRadius: 8, 
-              elevation: 5 
-            }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              {/* Project Image */}
-              <Image 
-                source={{ uri: item.image }} 
-                style={{ width: 50, height: 50, borderRadius: 25, marginRight: 15 }} 
-              />
-              {/* Project Details */}
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontWeight: 'bold', fontSize: 16, color: "#333" }}>{item.category}</Text>
-                <Text style={{ fontSize: 14, color: "#777" }}>Status: {item.status}</Text>
-                <Text style={{ fontSize: 14, color: "#777" }}>Date Started: {item.dateStarted}</Text>
-                <Text style={{ fontSize: 14, color: item.isGift ? "#4CAF50" : "#F44336" }}>
-                  {item.isGift ? 'Gift ✔️' : 'Not a Gift ❌'}
+          <TouchableOpacity onPress={() => handleProjectPress(item)}>
+            <View style={[sharedStyles.card, { borderColor: item.categoryColor || "#ccc" }]}>
+              <Text
+                variant="titleMedium"
+                style={[sharedStyles.cardTitle, { color: item.categoryColor || "#333" }]}
+              >
+                {item.title}
+              </Text>
+
+              <Text>Status: {item.status}</Text>
+              <Text>Started: {item.dateStarted}</Text>
+
+              {item.supplies ? (
+                <Text style={sharedStyles.cardMeta}>
+                  Supplies: {item.supplies}
+                </Text>
+              ) : null}
+
+              <View style={sharedStyles.giftRow}>
+                <MaterialCommunityIcons
+                  name={item.isGift ? "gift" : "gift-off"}
+                  size={20}
+                  color={item.isGift ? "#4CAF50" : "#F44336"}
+                />
+                <Text style={{ marginLeft: 5 }}>
+                  {item.isGift ? "Gift" : "Not a gift"}
                 </Text>
               </View>
+
+              {item.imageUri ? (
+                <Image
+                  source={{ uri: item.imageUri }}
+                  style={sharedStyles.imagePreview}
+                />
+              ) : null}
             </View>
-          </View>
+          </TouchableOpacity>
         )}
-        keyExtractor={(item) => item.key}
+        ListEmptyComponent={renderEmptyState}
+      />
+
+      <FABStack
+        onAddItem={() => router.push("/stash/add-project")}
+        onAddCategory={() => router.push("/stash/add-category")}
+        labelItem="Add Project"
+        colorItem="#2196F3"
       />
     </View>
   );
