@@ -21,16 +21,6 @@ A mobile application developed using React Native and Expo, designed to help cra
 - React Navigation
 - AsyncStorage
 
-## Screenshots
-
-*Please replace the placeholders below with actual screenshots from your project.*
-
-![Yarn List Screen](./assets/yarn_list.png)
-*Yarn List Screen showcasing all yarn entries.*
-
-![Project Detail Screen](./assets/project_detail.png)
-*Project Detail Screen displaying project information and associated yarns.*
-
 ## Getting Started
 
 ### Prerequisites
