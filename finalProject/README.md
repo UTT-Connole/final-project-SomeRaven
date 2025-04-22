@@ -1,50 +1,74 @@
-# Welcome to your Expo app 👋
+# 📱 Final Project – React Native Mobile App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile application developed using React Native and Expo, serving as the final project for [Course Name or Description].
 
-## Get started
+## 🚀 Features
 
-1. Install dependencies
+- User authentication and authorization
+- Real-time data fetching and updates
+- Responsive UI components
+- Integration with external APIs
+- Offline support
 
-   ```bash
-   npm install
-   ```
+## 🛠️ Technologies Used
 
-2. Start the app
+- React Native
+- Expo
+- TypeScript
+- React Navigation
+- Axios
+- Jest
 
-   ```bash
-    npx expo start
-   ```
+## 📸 Screenshots
 
-In the output, you'll find options to open the app in a
+![Login Screen](./assets/login-screen.png)
+![Dashboard](./assets/dashboard.png)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🧑‍💻 Getting Started
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Prerequisites
 
-## Get a fresh project
-
-When you're ready, run:
+- Node.js and npm installed
+- Expo CLI installed globally:
 
 ```bash
-npm run reset-project
+npm install -g expo-cli
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Installation
 
-## Learn more
+1. Clone the repository:
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+git clone https://github.com/UTT-Connole/final-project-SomeRaven.git
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+2. Navigate to the project directory:
 
-## Join the community
+```bash
+cd final-project-SomeRaven/finalProject
+```
 
-Join our community of developers creating universal apps.
+3. Install dependencies:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npm install
+```
+
+4. Start the development server:
+
+```bash
+npx expo start
+```
+
+## 🧪 Running Tests
+
+To run the test suite:
+
+```bash
+npm test
+```
+
+## 📄 License
+
+This project is licensed under the MIT License. See the [LICENSE](../LICENSE) file for details.
