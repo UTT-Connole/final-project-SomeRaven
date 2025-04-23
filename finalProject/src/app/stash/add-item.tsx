@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { View, ScrollView, Image } from 'react-native';
 import { Text, TextInput, Menu } from 'react-native-paper';
 import { CategoryContext } from '../../context/CategoryContext';
@@ -18,21 +18,35 @@ export default function AddItemScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
 
-  const [name, setName] = useState(params.name?.toString() ?? '');
-  const [image, setImage] = useState(params.image?.toString() ?? '');
-  const [categoryId, setCategoryId] = useState(params.categoryId?.toString() ?? null);
+  const isEditing = Boolean(params.id);
+
+  const [name, setName] = useState('');
+  const [image, setImage] = useState('');
+  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
   const [menuVisible, setMenuVisible] = useState(false);
 
-  const knownKeys = ['id', 'name', 'image', 'categoryId'];
-  const initialFields: { [key: string]: string } = {};
+  useEffect(() => {
+    if (isEditing) {
+      setName(params.name?.toString() ?? '');
+      setImage(params.image?.toString() ?? '');
+      setCategoryId(params.categoryId?.toString() ?? null);
 
-  Object.entries(params).forEach(([key, value]) => {
-    if (!knownKeys.includes(key)) {
-      initialFields[key] = value?.toString() ?? '';
+      const knownKeys = ['id', 'name', 'image', 'categoryId'];
+      const newFields: { [key: string]: string } = {};
+      Object.entries(params).forEach(([key, value]) => {
+        if (!knownKeys.includes(key)) {
+          newFields[key] = value?.toString() ?? '';
+        }
+      });
+      setFieldValues(newFields);
+    } else {
+      setName('');
+      setImage('');
+      setCategoryId(null);
+      setFieldValues({});
     }
-  });
-
-  const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>(initialFields);
+  }, [params.id]);
 
   const handleFieldChange = (field: string, value: string) => {
     setFieldValues(prev => ({ ...prev, [field]: value }));
@@ -98,7 +112,7 @@ export default function AddItemScreen() {
   return (
     <ScrollView contentContainerStyle={{ padding: 20 }}>
       <Text variant="titleLarge" style={{ marginBottom: 20 }}>
-        {params.id ? "Edit Item" : "Add New Item"}
+        {isEditing ? "Edit Item" : "Add New Item"}
       </Text>
 
       <TextInput
@@ -124,16 +138,20 @@ export default function AddItemScreen() {
         onDismiss={() => setMenuVisible(false)}
         anchor={
           <Text
+            onPress={() => {
+              if (categories.length === 0) router.push("/stash/add-category");
+              else setMenuVisible(true);
+            }}
             style={{
               padding: 12,
               borderWidth: 1,
               borderColor: '#ccc',
               borderRadius: 8,
               marginBottom: 15,
+              color: categories.length === 0 ? 'red' : '#000',
             }}
-            onPress={() => setMenuVisible(true)}
           >
-            {selectedCategory?.name || "Select a Category"}
+            {categories.length === 0 ? "No categories yet – Tap to add one" : selectedCategory?.name || "Select a Category"}
           </Text>
         }
       >

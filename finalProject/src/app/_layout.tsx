@@ -7,6 +7,7 @@ import { CategoryProvider } from '../context/CategoryContext';
 import { Text } from 'react-native';
 import { ProjectProvider } from '../context/ProjectContext';
 import { ItemProvider } from "../context/ItemsContext";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 SplashScreen.preventAutoHideAsync();
@@ -25,6 +26,16 @@ export default function Layout() {
 
     load();
   }, []);
+
+  useEffect(() => {
+    const clearStorage = async () => {
+      await AsyncStorage.clear();
+      console.log('AsyncStorage cleared!');
+    };
+  
+    clearStorage();
+  }, []);
+  
 
   if (!fontsLoaded) return null;
 
@@ -72,6 +83,7 @@ export default function Layout() {
           <Tabs.Screen name="stash/add-item" options={{ href: null }} />
           <Tabs.Screen name="stash/add-category" options={{ href: null }} />
           <Tabs.Screen name="stash/add-project" options={{ href: null }} />
+          <Tabs.Screen name="stash/manage-categories" options={{ href: null }} />
         </Tabs>
         </ProjectProvider>
         </ItemProvider>

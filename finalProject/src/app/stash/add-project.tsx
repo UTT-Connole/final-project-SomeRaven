@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Text, TextInput, Switch, Menu } from 'react-native-paper';
@@ -7,6 +7,8 @@ import { ProjectContext } from '../../context/ProjectContext';
 import { CategoryContext } from '../../context/CategoryContext';
 import { ImagePickerButtons, SubmitButton } from '../../components/Buttons';
 import sharedStyles from '../../components/style';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Platform } from 'react-native';
 
 export const unstable_settings = {
   tabBarHidden: true,
@@ -17,19 +19,45 @@ export default function AddProjectScreen() {
   const params = useLocalSearchParams();
   const { addProject } = useContext(ProjectContext);
   const { categories } = useContext(CategoryContext);
+  const isEditing = Boolean(params.id);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const [title, setTitle] = useState(params.title?.toString() ?? `Project - ${new Date().toLocaleDateString()}`);
-  const [categoryId, setCategoryId] = useState(params.categoryId?.toString() ?? null);
-  const [categoryColor, setCategoryColor] = useState(params.categoryColor?.toString() ?? '#ccc');
-  const [isGift, setIsGift] = useState(params.isGift === 'true');
-  const [dateStarted, setDateStarted] = useState(params.dateStarted?.toString() ?? new Date().toISOString().split('T')[0]);
-  const [supplies, setSupplies] = useState(params.supplies?.toString() ?? '');
-  const [imageUri, setImageUri] = useState<string | null>(params.imageUri?.toString() ?? null);
-  const [status, setStatus] = useState(params.status?.toString() ?? 'Not Started');
+  const [title, setTitle] = useState('');
+  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [categoryColor, setCategoryColor] = useState('#ccc');
+  const [isGift, setIsGift] = useState(false);
+  const [dateStarted, setDateStarted] = useState('');
+  const [supplies, setSupplies] = useState('');
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [status, setStatus] = useState('Not Started');
   const [menuVisible, setMenuVisible] = useState(false);
   const [catMenuVisible, setCatMenuVisible] = useState(false);
 
   const selectedCategory = categories.find(cat => cat.id === categoryId);
+  
+
+  // 🧼 useEffect to load data for edit mode OR reset fields for new project
+  useEffect(() => {
+    if (isEditing) {
+      setTitle(params.title?.toString() ?? '');
+      setCategoryId(params.categoryId?.toString() ?? null);
+      setCategoryColor(params.categoryColor?.toString() ?? '#ccc');
+      setIsGift(params.isGift === 'true');
+      setDateStarted(params.dateStarted?.toString() ?? new Date().toISOString().split('T')[0]);
+      setSupplies(params.supplies?.toString() ?? '');
+      setImageUri(params.imageUri?.toString() ?? null);
+      setStatus(params.status?.toString() ?? 'Not Started');
+    } else {
+      setTitle(`Project - ${new Date().toLocaleDateString()}`);
+      setCategoryId(null);
+      setCategoryColor('#ccc');
+      setIsGift(false);
+      setDateStarted(new Date().toISOString().split('T')[0]);
+      setSupplies('');
+      setImageUri(null); // ✨ important for your bug
+      setStatus('Not Started');
+    }
+  }, [params.id]);
 
   const handlePickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -91,7 +119,7 @@ export default function AddProjectScreen() {
   return (
     <ScrollView contentContainerStyle={{ padding: 20 }}>
       <Text variant="titleLarge" style={{ marginBottom: 20, color: categoryColor }}>
-        {params.id ? "Edit Project" : "Add New Project"}
+        {isEditing ? "Edit Project" : "Add New Project"}
       </Text>
 
       <TextInput
@@ -133,12 +161,33 @@ export default function AddProjectScreen() {
         ))}
       </Menu>
 
-      <TextInput
-        label="Date Started"
-        value={dateStarted}
-        onChangeText={setDateStarted}
-        style={{ marginBottom: 15 }}
-      />
+      <Text variant="labelLarge" style={{ marginBottom: 5 }}>Date Started</Text>
+      <TouchableOpacity
+        onPress={() => setShowDatePicker(true)}
+        style={{
+          padding: 12,
+          borderWidth: 1,
+          borderColor: '#ccc',
+          borderRadius: 8,
+          marginBottom: 15,
+        }}
+      >
+        <Text>{new Date(dateStarted).toLocaleDateString()}</Text>
+      </TouchableOpacity>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={new Date(dateStarted)}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selectedDate) => {
+            setShowDatePicker(false);
+            if (selectedDate) {
+              setDateStarted(selectedDate.toISOString().split('T')[0]);
+            }
+          }}
+        />
+      )}
 
       <Text variant="labelLarge" style={{ marginBottom: 5 }}>Status</Text>
       <Menu

@@ -12,11 +12,13 @@ export interface Item {
 interface ItemContextType {
   items: Item[];
   addItem: (item: Item) => void;
+  deleteItem: (id: string) => void;
 }
 
 export const ItemContext = createContext<ItemContextType>({
   items: [],
   addItem: () => {},
+  deleteItem: () => {}, // ✅ add this
 });
 
 export const ItemProvider = ({ children }: { children: ReactNode }) => {
@@ -51,9 +53,13 @@ export const ItemProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const deleteItem = (id: string) => {
+    setItems(prev => prev.filter(item => item.id !== id));
+  };
+  
   return (
-    <ItemContext.Provider value={{ items, addItem }}>
+    <ItemContext.Provider value={{ items, addItem, deleteItem }}>
       {children}
     </ItemContext.Provider>
-  );
+  );  
 };

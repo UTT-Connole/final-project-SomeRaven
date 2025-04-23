@@ -74,11 +74,17 @@ export default function Index() {
       />
 
       <FABStack
-        onAddItem={() => router.push("/stash/add-item")}
+        onAddItem={() => router.push({
+          pathname: "/stash/add-item",
+          params: { _reset: Date.now().toString() } // force uniqueness
+        })
+        }
         onAddCategory={() => router.push("/stash/add-category")}
+        onManageCategories={() => router.push("/stash/manage-categories")}
         labelItem="Add Item"
         colorItem="#ff6f61"
       />
+
     </View>
   );
 }

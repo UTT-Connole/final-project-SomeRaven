@@ -99,7 +99,10 @@ export default function SecondScreen() {
       />
 
       <FABStack
-        onAddItem={() => router.push("/stash/add-project")}
+        onAddItem={() => router.push({
+          pathname: "/stash/add-project",
+          params: { _reset: Date.now().toString() }
+        })}
         onAddCategory={() => router.push("/stash/add-category")}
         labelItem="Add Project"
         colorItem="#2196F3"
