@@ -13,14 +13,17 @@ export interface Project {
   categoryColor?: string;
 }
 
+
 interface ProjectContextType {
   projects: Project[];
   addProject: (project: Project) => void;
+  deleteProject: (id: string) => void;
 }
 
 export const ProjectContext = createContext<ProjectContextType>({
   projects: [],
   addProject: () => {},
+  deleteProject: () => {},
 });
 
 export const ProjectProvider = ({ children }: { children: ReactNode }) => {
@@ -51,8 +54,13 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const deleteProject = (id: string) => {
+    setProjects(prev => prev.filter(p => p.id !== id));
+  };
+  
+
   return (
-    <ProjectContext.Provider value={{ projects, addProject }}>
+    <ProjectContext.Provider value={{ projects, addProject, deleteProject }}>
       {children}
     </ProjectContext.Provider>
   );

@@ -31,16 +31,12 @@ export const ImagePickerButtons = ({ onPickImage, onTakePhoto }: ImageButtonsPro
 
 interface FABStackProps {
   onAddItem: () => void;
-  onAddCategory: () => void;
-  onManageCategories: () => void;
   labelItem?: string;
   colorItem?: string;
 }
 
 export const FABStack = ({
   onAddItem,
-  onAddCategory,
-  onManageCategories,
   labelItem = "Add",
   colorItem = "#ff6f61",
 }: FABStackProps) => {
@@ -48,36 +44,6 @@ export const FABStack = ({
 
   return (
     <View style={{ position: "absolute", bottom: 30, right: 20, alignItems: "flex-end" }}>
-      <Menu
-        visible={menuVisible}
-        onDismiss={() => setMenuVisible(false)}
-        anchor={
-          <FAB
-            icon="shape-outline"
-            small
-            label="Manage Categories"
-            style={{ backgroundColor: "#607d8b", marginBottom: 10 }}
-            onPress={() => setMenuVisible(true)}
-            color="white"
-          />
-        }
-      >
-        <Menu.Item
-          onPress={() => {
-            setMenuVisible(false);
-            onAddCategory();
-          }}
-          title="Add New Category"
-        />
-        <Menu.Item
-          onPress={() => {
-            setMenuVisible(false);
-            onManageCategories();
-          }}
-          title="Edit / Delete Categories"
-        />
-      </Menu>
-
       <FAB
         icon="plus"
         label={labelItem}

@@ -1,17 +1,20 @@
 import { FlatList, View } from "react-native";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useRouter } from "expo-router";
-import { Text, Divider } from "react-native-paper";
+import { Text, Divider, TextInput } from "react-native-paper";
 import { CategoryContext } from "../context/CategoryContext";
 import { ItemContext } from "../context/ItemsContext";
 import ItemCard from "../components/ItemCard";
 import { FABStack } from "../components/Buttons";
 import sharedStyles from "../components/style";
 
+
 export default function Index() {
   const { categories } = useContext(CategoryContext);
   const { items } = useContext(ItemContext);
   const router = useRouter();
+  const [searchText, setSearchText] = useState('');
+
 
   const renderEmptyState = () => (
     <View style={sharedStyles.emptyContainer}>
@@ -53,9 +56,34 @@ export default function Index() {
       </View>
 
       <Divider style={sharedStyles.divider} />
+        <TextInput
+          mode="outlined"
+          label="Search Stash"
+          placeholder="e.g., yarn, buttons, mittens..."
+          value={searchText}
+          onChangeText={setSearchText}
+          style={{
+            borderRadius: 12,
+            backgroundColor: '#fafafa',
+            fontSize: 16,
+            marginLeft: 16,
+            marginRight: 16,
+            marginBottom: 16,
+          }}
+          theme={{
+            colors: {
+              primary: '#ff6f61',
+              outline: '#ddd',
+            },
+          }}
+          left={<TextInput.Icon icon="magnify" />}
+          underlineColor="transparent"
+        />
 
       <FlatList
-        data={items}
+        data={items.filter(item =>
+          item.name.toLowerCase().includes(searchText.toLowerCase())
+        )}
         keyExtractor={(item) => item.id?.toString() ?? Math.random().toString()}
         contentContainerStyle={sharedStyles.listContent}
         renderItem={({ item }) => {
@@ -79,8 +107,6 @@ export default function Index() {
           params: { _reset: Date.now().toString() } // force uniqueness
         })
         }
-        onAddCategory={() => router.push("/stash/add-category")}
-        onManageCategories={() => router.push("/stash/manage-categories")}
         labelItem="Add Item"
         colorItem="#ff6f61"
       />

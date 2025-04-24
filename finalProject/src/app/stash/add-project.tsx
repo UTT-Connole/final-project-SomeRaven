@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Text, TextInput, Switch, Menu } from 'react-native-paper';
+import { Button, Text, TextInput, Switch, Menu } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { ProjectContext } from '../../context/ProjectContext';
 import { CategoryContext } from '../../context/CategoryContext';
@@ -17,7 +17,7 @@ export const unstable_settings = {
 export default function AddProjectScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { addProject } = useContext(ProjectContext);
+  const { addProject, deleteProject } = useContext(ProjectContext);
   const { categories } = useContext(CategoryContext);
   const isEditing = Boolean(params.id);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -238,6 +238,32 @@ export default function AddProjectScreen() {
       </View>
 
       <SubmitButton label="Save Project" onPress={handleSubmit} />
+      {isEditing && (
+        <Button
+          mode="text"
+          textColor="#f44336"
+          style={{ marginTop: 10 }}
+          onPress={() => {
+            Alert.alert("Delete Project?", "This cannot be undone.", [
+              { text: "Cancel", style: "cancel" },
+              {
+                text: "Delete",
+                style: "destructive",
+                onPress: () => {
+                  if (params.id) {
+                    deleteProject(params.id.toString());
+                    alert("Project deleted!");
+                    router.replace("/second");
+                  }
+                },
+              },
+            ]);
+          }}
+        >
+          Delete Project
+        </Button>
+      )}
+
     </ScrollView>
   );
 }

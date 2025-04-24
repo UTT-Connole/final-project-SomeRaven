@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from 'react';
-import { View, ScrollView, Image } from 'react-native';
-import { Text, TextInput, Menu } from 'react-native-paper';
+import { View, ScrollView, Image, Alert } from 'react-native';
+import { Text, TextInput, Menu, Button } from 'react-native-paper';
 import { CategoryContext } from '../../context/CategoryContext';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -14,7 +14,7 @@ export const unstable_settings = {
 
 export default function AddItemScreen() {
   const { categories } = useContext(CategoryContext);
-  const { addItem } = useContext(ItemContext);
+  const { addItem, deleteItem } = useContext(ItemContext);
   const router = useRouter();
   const params = useLocalSearchParams();
 
@@ -183,6 +183,33 @@ export default function AddItemScreen() {
       )}
 
       <SubmitButton label="Save Item" onPress={handleSubmit} />
+      {isEditing && (
+      <Button
+      mode="text"
+      textColor="#f44336"
+      style={{ marginTop: 10 }}
+      onPress={() => {
+        Alert.alert("Delete Item?", "This cannot be undone.", [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: () => {
+              if (params.id) {
+                deleteItem(params.id.toString());
+                alert("Item deleted!");
+                router.replace("/");
+              }
+            },
+          },
+        ]);
+      }}
+    >
+      Delete Item
+    </Button>
+    
+    )}
+
     </ScrollView>
   );
 }

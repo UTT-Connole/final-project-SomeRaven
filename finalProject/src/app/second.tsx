@@ -1,6 +1,6 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { FlatList, View, TouchableOpacity, Image } from "react-native";
-import { Text, Divider } from "react-native-paper";
+import { Text, Divider, TextInput } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { ProjectContext } from "../context/ProjectContext";
 import { FABStack } from "../components/Buttons";
@@ -10,6 +10,7 @@ import sharedStyles from "../components/style";
 export default function SecondScreen() {
   const router = useRouter();
   const { projects } = useContext(ProjectContext);
+  const [searchText, setSearchText] = useState('');
 
   const renderEmptyState = () => (
     <View style={sharedStyles.emptyContainer}>
@@ -52,8 +53,33 @@ export default function SecondScreen() {
 
       <Divider style={sharedStyles.divider} />
 
+      <TextInput
+        mode="outlined"
+        label="Search Projects"
+        placeholder="e.g., blanket, sweater, WIP"
+        value={searchText}
+        onChangeText={setSearchText}
+        style={{
+          marginBottom: 10,
+          marginHorizontal: 20,
+          borderRadius: 12,
+          backgroundColor: '#fafafa',
+          fontSize: 16,
+        }}
+        theme={{
+          colors: {
+            primary: '#2196F3',
+            outline: '#ddd',
+          },
+        }}
+        left={<TextInput.Icon icon="magnify" />}
+        underlineColor="transparent"
+      />
+
       <FlatList
-        data={projects}
+        data={projects.filter(project =>
+          project.title.toLowerCase().includes(searchText.toLowerCase())
+        )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={sharedStyles.listContent}
         renderItem={({ item }) => (

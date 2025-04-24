@@ -27,16 +27,6 @@ export default function Layout() {
     load();
   }, []);
 
-  useEffect(() => {
-    const clearStorage = async () => {
-      await AsyncStorage.clear();
-      console.log('AsyncStorage cleared!');
-    };
-  
-    clearStorage();
-  }, []);
-  
-
   if (!fontsLoaded) return null;
 
   return (
@@ -64,13 +54,15 @@ export default function Layout() {
                 iconName = 'bag';
               } else if (route.name === 'second') {
                 iconName = 'folder';
-              } else {
+              } else if (route.name === 'categories') {
+                iconName = 'yellow-folder';
+              } else{
                 iconName = 'ellipse';
               }
 
               return (
                 <Text style={{ fontSize: size, color }}>
-                  {iconName === 'bag' ? '👜' : iconName === 'folder' ? '📁' : '⭕'}
+                  {iconName === 'bag' ? '🛍️' : iconName === 'folder' ? '📓' : iconName === 'yellow-folder' ? '🗂️': '⭕'}
                 </Text>
               );
             },
@@ -80,10 +72,26 @@ export default function Layout() {
         >
           <Tabs.Screen name="index" options={{ title: 'Stash' }} />
           <Tabs.Screen name="second" options={{ title: 'Projects' }} />
-          <Tabs.Screen name="stash/add-item" options={{ href: null }} />
-          <Tabs.Screen name="stash/add-category" options={{ href: null }} />
-          <Tabs.Screen name="stash/add-project" options={{ href: null }} />
-          <Tabs.Screen name="stash/manage-categories" options={{ href: null }} />
+          <Tabs.Screen name="categories" options={{ title: 'Categories' }} />
+          <Tabs.Screen
+            name="stash/add-item"
+            options={{ href: null }}
+            getId={({ params }) => params?._reset?.toString() ?? 'default-add-item'}
+          />
+
+          <Tabs.Screen
+            name="stash/add-category"
+            options={{ href: null }}
+            getId={({ params }) => params?._reset?.toString() ?? 'default-add-category'}
+          />
+
+          <Tabs.Screen name="stash/add-project" options={{ href: null }}
+            getId={({ params }) => params?._reset?.toString() ?? 'default-add-project'}
+          />
+          <Tabs.Screen name="stash/manage-categories" options={{ href: null }}
+            getId={({ params }) => params?._reset?.toString() ?? 'default-manage-categories'}
+          />
+
         </Tabs>
         </ProjectProvider>
         </ItemProvider>
